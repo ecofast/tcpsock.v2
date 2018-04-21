@@ -1,7 +1,7 @@
 # tcpsock.v2
 Package tcpsock provides easy to use interfaces for TCP I/O, it's designed especially for developing online game servers.</br></br>
 
-# How to use</br>
+# Examples</br>
 ## there's a [chatroom](https://github.com/ecofast/tcpsock.v2/tree/master/samples/chatroom) demo which uses custom binary protocol</br>
 run chatroom [server](https://github.com/ecofast/tcpsock.v2/tree/master/samples/chatroom/server) on a Aliyun VPS(CentOS 7.4) which has 2 CPUs of Intel(R) Xeon(R) E5-2682 v4 @ 2.50GHz, then make 1K connections by using [robot](https://github.com/ecofast/tcpsock.v2/tree/master/samples/chatroom/robot)(robot.exe -s=ip:port -n=100 -r=0[1,..9]), so there are 10 rooms and each has 100 users connected. Every robot will send some words to chat server during 5~10secs.</br>
 ```shell
