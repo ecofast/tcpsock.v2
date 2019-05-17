@@ -14,6 +14,9 @@ type OnTcpDisconnect = func(conn *TcpConn)
 type OnTcpError = func(conn *TcpConn, err error)
 type OnTcpIterate = func(id uint64, session TcpSession)
 
+type OnTcpWrite = func(b []byte) (n int, err error)
+type OnTcpClose = func() error
+
 type tcpSock struct {
 	exitChan     chan struct{}
 	waitGroup    *sync.WaitGroup
