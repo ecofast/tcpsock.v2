@@ -134,6 +134,16 @@ func (self *TcpServer) Kick(id uint64) {
 	delete(self.sessions, id)
 }
 
+func (self *TcpServer) GetSession(id uint64) TcpSession {
+	var ret TcpSession
+	self.mutex.Lock()
+	if v, ok := self.sessions[id]; ok {
+		ret = v
+	}
+	self.mutex.Unlock()
+	return ret
+}
+
 func (self *TcpServer) checkConn(ip net.Addr) bool {
 	if self.Count() >= NumOfConnMax {
 		return false
