@@ -45,21 +45,20 @@ func NewTcpClient(svrAddr string, onConnect OnTcpConnect, onDisconnect OnTcpDisc
 }
 
 func (self *TcpClient) Open() {
-	conn, err := net.DialTimeout("tcp", self.svrAddr, TcpDialTimeoutInSecs*time.Second)
-	CheckError(err)
-
-	self.waitGroup.Add(1)
-	go func() {
-		c := newTcpConn(0, self.tcpSock, conn, self.connClose)
-		session := self.onConnect(c)
-		if session != nil {
-			c.onRead = session.Read
-		}
-		self.TcpConn = c
-		c.run()
-		self.waitGroup.Done()
-	}()
-	time.Sleep(100 * time.Millisecond)
+	if conn, err := net.DialTimeout("tcp", self.svrAddr, TcpDialTimeoutInSecs*time.Second); err == nil {
+		self.waitGroup.Add(1)
+		go func() {
+			c := newTcpConn(0, self.tcpSock, conn, self.connClose)
+			session := self.onConnect(c)
+			if session != nil {
+				c.onRead = session.Read
+			}
+			self.TcpConn = c
+			c.run()
+			self.waitGroup.Done()
+		}()
+		time.Sleep(100 * time.Millisecond)
+	}
 }
 
 func (self *TcpClient) Close() error {
