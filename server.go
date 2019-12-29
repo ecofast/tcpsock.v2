@@ -24,7 +24,7 @@ type TcpServer struct {
 	*tcpSock
 	autoIncID uint64
 	count     uint32
-	mutex     sync.Mutex
+	mutex     sync.RWMutex
 	sessions  map[uint64]TcpSession
 	onCheckIP OnCheckIP
 }
@@ -73,7 +73,6 @@ func (self *TcpServer) run() {
 		select {
 		case <-self.exitChan:
 			return
-
 		default:
 		}
 
@@ -113,34 +112,38 @@ func (self *TcpServer) Count() uint32 {
 }
 
 func (self *TcpServer) Iterate(fn OnTcpIterate) {
-	self.mutex.Lock()
-	defer self.mutex.Unlock()
+	self.mutex.RLock()
+	defer self.mutex.RUnlock()
 	for id, session := range self.sessions {
 		fn(id, session)
 	}
 }
 
 func (self *TcpServer) Send(id uint64, b []byte) {
-	self.mutex.Lock()
-	defer self.mutex.Unlock()
+	if len(b) == 0 {
+		return
+	}
+	
+	self.mutex.RLock()
 	if v, ok := self.sessions[id]; ok {
 		v.Write(b)
 	}
+	self.mutex.RUnlock()
 }
 
 func (self *TcpServer) Kick(id uint64) {
 	self.mutex.Lock()
-	defer self.mutex.Unlock()
 	delete(self.sessions, id)
+	self.mutex.Unlock()
 }
 
 func (self *TcpServer) GetSession(id uint64) TcpSession {
 	var ret TcpSession
-	self.mutex.Lock()
+	self.mutex.RLock()
 	if v, ok := self.sessions[id]; ok {
 		ret = v
 	}
-	self.mutex.Unlock()
+	self.mutex.RUnlock()
 	return ret
 }
 
@@ -166,12 +169,12 @@ func (self *TcpServer) connClose(conn *TcpConn) {
 
 func (self *TcpServer) addSession(id uint64, session TcpSession) {
 	self.mutex.Lock()
-	defer self.mutex.Unlock()
 	self.sessions[id] = session
+	self.mutex.Unlock()
 }
 
 func (self *TcpServer) delSession(id uint64) {
 	self.mutex.Lock()
-	defer self.mutex.Unlock()
 	delete(self.sessions, id)
+	self.mutex.Unlock()
 }
