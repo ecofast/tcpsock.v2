@@ -8,8 +8,6 @@ import (
 	"net"
 	"sync"
 	"time"
-
-	. "github.com/ecofast/rtl/sysutils"
 )
 
 const (
